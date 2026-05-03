@@ -1,0 +1,24 @@
+# Dependencias
+node_modules/
+
+# Archivos compilados
+dist/
+
+# Archivos de entorno
+.env
+.env.local
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+
+# Electron builder
+release/
