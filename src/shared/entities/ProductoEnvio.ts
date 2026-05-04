@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Envio } from './Envio';
 import { Producto } from './Producto';
 
-@Entity('producto_envio')
+@Entity('ProductoEnvio')
 export class ProductoEnvio {
   @PrimaryColumn({ type: 'numeric' })
   id!: number;

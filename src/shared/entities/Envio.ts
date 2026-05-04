@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, Check } from 'typeorm';
 import { ProductoEnvio } from './ProductoEnvio';
 
-@Entity('envio')
+@Entity('Envio')
 @Check(`estado IN ('pendiente', 'recibido')`)
 export class Envio {
   @PrimaryGeneratedColumn()

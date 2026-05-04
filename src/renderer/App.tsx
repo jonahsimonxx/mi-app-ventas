@@ -11,9 +11,13 @@ interface Producto {
 const App: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
 
+  console.log("🔹 window.electronAPI existe?", !!window.electronAPI);
+  console.log("🔹 window.electronAPI.getProductos existe?", !!window.electronAPI?.getProductos);
+
   useEffect(() => {
     const fetchProductos = async () => {
       const data = await window.electronAPI.getProductos();
+      console.log("Datos recibidos:", data)
       setProductos(data);
     };
     fetchProductos();
@@ -41,8 +45,8 @@ const App: React.FC = () => {
               <tr key={p.id_prod}>
                 <td className="p-2 border">{p.id_prod}</td>
                 <td className="p-2 border">{p.nombre_prod}</td>
-                <td className="p-2 border">${p.costo.toFixed(2)}</td>
-                <td className="p-2 border">${p.precio_venta.toFixed(2)}</td>
+                <td className="p-2 border">${Number(p.costo).toFixed(2)}</td>
+                <td className="p-2 border">${Number(p.precio_venta).toFixed(2)}</td>
                 <td className={`p-2 border ${p.stock_actual >= 5 ? 'text-green-600' : 'text-red-600'}`}>
                   {p.stock_actual}
                 </td>

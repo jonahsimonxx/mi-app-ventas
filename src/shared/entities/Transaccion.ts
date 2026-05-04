@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, Check } from 'typeorm';
 import { Cuenta } from './Cuenta';
 
-@Entity('transaccion')
+@Entity('Transaccion')
 @Check(`tipo IN ('transferencia', 'venta', 'compra', 'envio')`)
 export class Transaccion {
   @PrimaryColumn({ type: 'numeric' })

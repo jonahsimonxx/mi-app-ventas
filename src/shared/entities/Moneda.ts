@@ -1,6 +1,6 @@
 import { Entity, PrimaryColumn, Column, Check } from 'typeorm';
 
-@Entity('moneda')
+@Entity('Moneda')
 @Check(`codigo IN ('USD', 'CUP', 'USDT')`)
 @Check(`nombre IN ('Dólar Estadounidense', 'Peso Cubano', 'Tether')`)
 export class Moneda {
