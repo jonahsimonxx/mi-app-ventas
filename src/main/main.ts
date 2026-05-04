@@ -52,6 +52,39 @@ async function createWindow() {
     console.error('❌ No se registró el handler: conexión fallida');
   }
 
+  ipcMain.handle('create-producto', async (_, producto: Producto) => {
+    try {
+      const repo = connection!.getRepository(Producto);
+      const nuevoProducto = repo.create(producto as Producto);
+      await repo.save(nuevoProducto);
+      return nuevoProducto;
+    } catch (error) {
+      console.error('❌ Error al crear producto:', error);
+      throw error;
+    }
+  });
+  
+     ipcMain.handle('update-producto', async (_, id: string, producto: Partial<Producto>) => {
+    try {
+      const repo = connection!.getRepository(Producto);
+      await repo.update(id, producto);
+      return await repo.findOne({ where: { id_prod: id } });
+    } catch (error) {
+      console.error('❌ Error al actualizar producto:', error);
+      throw error;
+    }
+  });
+  
+     ipcMain.handle('delete-producto', async (_, id: string) => {
+    try {
+      const repo = connection!.getRepository(Producto);
+      await repo.delete(id);
+      return true;
+    } catch (error) {
+      console.error('❌ Error al eliminar producto:', error);
+      throw error;
+    }
+  });
   // Configuración de la ventana
   mainWindow = new BrowserWindow({
     width: 1200,
