@@ -9,4 +9,7 @@ export class Moneda {
 
   @Column({ type: 'varchar', length: 50 })
   nombre!: string;
+
+   @Column({ type: 'numeric', precision: 10, scale: 4 })
+  tasa_cambio!: number; 
 }
