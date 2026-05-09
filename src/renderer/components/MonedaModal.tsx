@@ -12,13 +12,22 @@ const MonedaModal: React.FC<MonedaModalProps> = ({ isOpen, onClose, onSave, mone
   const [moneda, setMoneda] = useState<Partial<Moneda>>({
     codigo: '',
     nombre: '',
+    tasa_cambio: 1.0, // ✅ Campo agregado
   });
 
   useEffect(() => {
     if (monedaEditar) {
-      setMoneda(monedaEditar);
+      setMoneda({
+        codigo: monedaEditar.codigo || '',
+        nombre: monedaEditar.nombre || '',
+        tasa_cambio: monedaEditar.tasa_cambio || 1.0, // ✅ Carga la tasa existente
+      });
     } else {
-      setMoneda({ codigo: '', nombre: '' });
+      setMoneda({
+        codigo: '',
+        nombre: '',
+        tasa_cambio: 1.0, // ✅ Valor por defecto
+      });
     }
   }, [monedaEditar, isOpen]);
 
@@ -66,6 +75,23 @@ const MonedaModal: React.FC<MonedaModalProps> = ({ isOpen, onClose, onSave, mone
               <option value="Tether">Tether</option>
             </select>
           </div>
+          {/* Tasa de cambio */}
+         <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Tasa de Cambio (vs CUP):</label>
+            <input
+              type="text" 
+           value={moneda.tasa_cambio}
+    onChange={(e) => {
+      const value = e.target.value;
+      if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+        setMoneda({ ...moneda, tasa_cambio: value === '' ? 0 : Number(value) });
+      }
+    }}
+    className="w-full p-2 border rounded"
+    required
+    placeholder="Ej: 540.00"
+  />
+</div>
           <div className="flex justify-end gap-2">
             <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
               Cancelar

@@ -7,7 +7,7 @@ import { Cuenta } from '../shared/entities/Cuenta';
 import { Envio } from '../shared/entities/Envio';
 import { ProductoEnvio } from '../shared/entities/ProductoEnvio';
 import { Transaccion } from '../shared/entities/Transaccion';
-import { scrapeTasaCambioUSD } from './services/scraper';
+import { scrapeTasaCambioUSD } from './services/omfiScraper';
 
 let mainWindow: BrowserWindow | null = null;
 let connection: Connection | null = null;
@@ -148,7 +148,6 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  await initDatabase();
   await scrapeTasaCambioUSD(); 
   createWindow();
   setInterval(async () => {
