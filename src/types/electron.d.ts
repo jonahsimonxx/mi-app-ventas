@@ -12,6 +12,13 @@ export interface ElectronAPI {
   createMoneda: (moneda: Partial<Moneda>) => Promise<Moneda>;
   updateMoneda: (codigo: string, moneda: Partial<Moneda>) => Promise<Moneda | null>;
   deleteMoneda: (codigo: string) => Promise<boolean>;
+
+  refreshTasas: () => Promise<{
+    source: 'eltoque' | 'omfi' | 'none';
+    USD?: number;
+    USDT?: number;
+    fecha?: string;
+  }>;
 }
 
 

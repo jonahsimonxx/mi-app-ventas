@@ -76,6 +76,32 @@ const App: React.FC = () => {
     setIsMonedaModalOpen(true);
   };
 
+  const [refreshingTasas, setRefreshingTasas] = useState(false);
+
+  const handleRefreshTasas = async () => {
+    try {
+      setRefreshingTasas(true);
+      const res = await window.electronAPI.refreshTasas();
+      await fetchMonedas();
+      if (res.source === 'eltoque') {
+        const partes = [
+          res.USD ? `USD = ${res.USD} CUP` : null,
+          res.USDT ? `USDT = ${res.USDT} CUP` : null,
+        ].filter(Boolean).join(' · ');
+        window.alert(`✅ Tasas actualizadas desde El Toque${res.fecha ? ` (${res.fecha})` : ''}\n${partes}`);
+      } else if (res.source === 'omfi') {
+        window.alert(`⚠️ El Toque no respondió. Tasa USD obtenida desde OMFi: ${res.USD} CUP`);
+      } else {
+        window.alert('❌ No se pudieron obtener tasas. Revisa tu conexión y el token.');
+      }
+    } catch (e) {
+      console.error(e);
+      window.alert('❌ Error al actualizar tasas.');
+    } finally {
+      setRefreshingTasas(false);
+    }
+  };
+
   // ========== CARGAR DATOS AL CAMBIAR DE PESTAÑA ==========
   useEffect(() => {
     if (activeTab === 'productos') {
@@ -206,15 +232,25 @@ const App: React.FC = () => {
           <>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Monedas</h2>
-              <button
-                onClick={() => {
-                  setMonedaEditar(null);
-                  setIsMonedaModalOpen(true);
-                }}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                + Nueva Moneda
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleRefreshTasas}
+                  disabled={refreshingTasas}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  title="Actualiza USD y USDT desde la API de El Toque"
+                >
+                  {refreshingTasas ? 'Actualizando…' : '↻ Actualizar tasas (El Toque)'}
+                </button>
+                <button
+                  onClick={() => {
+                    setMonedaEditar(null);
+                    setIsMonedaModalOpen(true);
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  + Nueva Moneda
+                </button>
+              </div>
             </div>
 
             <table className="min-w-full mt-2 border">

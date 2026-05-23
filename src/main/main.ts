@@ -8,6 +8,7 @@ import { Envio } from '../shared/entities/Envio';
 import { ProductoEnvio } from '../shared/entities/ProductoEnvio';
 import { Transaccion } from '../shared/entities/Transaccion';
 import { scrapeTasaCambioUSD } from './services/omfiScraper';
+import { fetchTasasEltoque } from './services/eltoqueApi';
 
 let mainWindow: BrowserWindow | null = null;
 let connection: Connection | null = null;
@@ -122,6 +123,18 @@ ipcMain.handle('delete-moneda', async (_, codigo: string) => {
   }
 });
 
+// ========== HANDLER PARA ACTUALIZAR TASAS DESDE EL TOQUE ==========
+ipcMain.handle('refresh-tasas', async () => {
+  const tasas = await fetchTasasEltoque();
+  if (tasas) return { source: 'eltoque', ...tasas };
+
+  // Fallback al scraper OMFi si la API falla.
+  const usdOmfi = await scrapeTasaCambioUSD();
+  if (usdOmfi !== null) return { source: 'omfi', USD: usdOmfi };
+
+  return { source: 'none' };
+});
+
 async function createWindow() {
   await initDatabase();
 
@@ -147,12 +160,17 @@ async function createWindow() {
   }
 }
 
+async function actualizarTasas() {
+  const tasas = await fetchTasasEltoque();
+  if (tasas) return;
+  // Fallback al scraper si la API no respondió.
+  await scrapeTasaCambioUSD();
+}
+
 app.whenReady().then(async () => {
-  await scrapeTasaCambioUSD(); 
-  createWindow();
-  setInterval(async () => {
-    await scrapeTasaCambioUSD();
-  }, 21600000);
+  await createWindow();
+  await actualizarTasas();
+  setInterval(actualizarTasas, 21600000);
 });
 
 app.on('window-all-closed', () => {
