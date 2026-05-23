@@ -10,4 +10,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createMoneda: (moneda: any) => ipcRenderer.invoke('create-moneda', moneda),
   updateMoneda: (codigo: string, moneda: any) => ipcRenderer.invoke('update-moneda', codigo, moneda),
   deleteMoneda: (codigo: string) => ipcRenderer.invoke('delete-moneda', codigo),
+
+  refreshTasas: () => ipcRenderer.invoke('refresh-tasas'),
 });
