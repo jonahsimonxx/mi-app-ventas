@@ -6,7 +6,7 @@ import { Moneda } from './Moneda';
 @Check(`nombre IN ('Efectivo USD', 'Efectivo CUP', 'CUP Transferencia', 'Saldo Coinex', 'Saldo QvaPay', 'Saldo MPay')`)
 export class Cuenta {
   @PrimaryColumn({ type: 'numeric' })
-  id_cuenta!: number;
+  id_cuenta!: string;
 
   @Column({ type: 'varchar', length: 50 })
   nombre!: string;

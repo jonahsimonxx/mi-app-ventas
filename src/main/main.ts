@@ -122,6 +122,51 @@ ipcMain.handle('delete-moneda', async (_, codigo: string) => {
   }
 });
 
+  // ========== HANDLERS DE CUENTA ==========
+ipcMain.handle('get-cuentas', async () => {
+  try {
+    const repo = connection!.getRepository(Cuenta);
+    return await repo.find();
+  } catch (error) {
+    console.error('❌ Error al obtener cuentas:', error);
+    return [];
+  }
+});
+
+ipcMain.handle('create-cuenta', async (_, cuenta: Partial<Cuenta>) => {
+  try {
+    const repo = connection!.getRepository(Cuenta);
+    const nuevaCuenta = repo.create(cuenta as Cuenta);
+    await repo.save(nuevaCuenta);
+    return nuevaCuenta;
+  } catch (error) {
+    console.error('❌ Error al crear cuenta:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('update-cuenta', async (_, id: string, cuenta: Partial<Cuenta>) => {
+  try {
+    const repo = connection!.getRepository(Cuenta);
+    await repo.update(id, cuenta);
+    return await repo.findOne({ where: { id_cuenta: id } });
+  } catch (error) {
+    console.error('❌ Error al actualizar cuenta:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('delete-cuenta', async (_, id: string) => {
+  try {
+    const repo = connection!.getRepository(Cuenta);
+    await repo.delete(id);
+    return true;
+  } catch (error) {
+    console.error('❌ Error al eliminar cuenta:', error);
+    throw error;
+  }
+});
+
 async function createWindow() {
   await initDatabase();
 

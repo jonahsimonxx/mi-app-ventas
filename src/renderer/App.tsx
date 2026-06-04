@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import ProductoModal from './components/ProductoModal';
 import MonedaModal from './components/MonedaModal';
+import CuentaModal from './components/CuentaModal';
 import { Producto } from '../shared/entities/Producto';
 import { Moneda } from '../shared/entities/Moneda';
+import { Cuenta } from '../shared/entities/Cuenta';
 
 const App: React.FC = () => {
   // ========== ESTADO PARA PRODUCTOS ==========
@@ -15,8 +17,13 @@ const App: React.FC = () => {
   const [isMonedaModalOpen, setIsMonedaModalOpen] = useState(false);
   const [monedaEditar, setMonedaEditar] = useState<Partial<Moneda> | null>(null);
 
+  // ========== ESTADO PARA CUENTAS ==========
+  const [cuentas, setCuentas] = useState<Cuenta[]>([]);
+  const [isCuentaModalOpen, setIsCuentaModalOpen] = useState(false);
+  const [cuentaEditar, setCuentaEditar] = useState<Partial<Cuenta> | null>(null);
+
   // ========== PESTAÑA ACTIVA ==========
-  const [activeTab, setActiveTab] = useState<'productos' | 'monedas'>('productos');
+  const [activeTab, setActiveTab] = useState<'productos' | 'monedas' | 'cuentas'>('productos');
 
   // ========== FUNCIONES PARA PRODUCTOS ==========
   const fetchProductos = async () => {
@@ -76,12 +83,43 @@ const App: React.FC = () => {
     setIsMonedaModalOpen(true);
   };
 
+  // ========== FUNCIONES PARA CUENTAS ==========
+  const fetchCuentas = async () => {
+    const data = await window.electronAPI.getCuentas();
+    setCuentas(data);
+  };
+
+  const handleCreateCuenta = async (cuenta: Partial<Cuenta>) => {
+    await window.electronAPI.createCuenta(cuenta);
+    fetchCuentas();
+  };
+
+  const handleUpdateCuenta = async (id: string, cuenta: Partial<Cuenta>) => {
+    await window.electronAPI.updateCuenta(id, cuenta);
+    fetchCuentas();
+    setIsCuentaModalOpen(false);
+  };
+
+  const handleDeleteCuenta = async (id: string) => {
+    if (window.confirm('¿Estás seguro de eliminar esta cuenta?')) {
+      await window.electronAPI.deleteCuenta(id);
+      fetchCuentas();
+    }
+  };
+
+  const openEditCuentaModal = (cuenta: Cuenta) => {
+    setCuentaEditar(cuenta);
+    setIsCuentaModalOpen(true);
+  };
+
   // ========== CARGAR DATOS AL CAMBIAR DE PESTAÑA ==========
   useEffect(() => {
     if (activeTab === 'productos') {
       fetchProductos();
-    } else {
+    } else if (activeTab === 'monedas') {
       fetchMonedas();
+    } else if (activeTab === 'cuentas') {
+      fetchCuentas();
     }
   }, [activeTab]);
 
@@ -116,6 +154,16 @@ const App: React.FC = () => {
           }`}
         >
           Monedas
+        </button>
+        <button
+          onClick={() => setActiveTab('cuentas')}
+          className={`pb-2 px-4 font-medium ${
+            activeTab === 'cuentas'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-500'
+          }`}
+        >
+          Cuentas
         </button>
       </div>
 
@@ -262,6 +310,81 @@ const App: React.FC = () => {
                 }
               }}
               monedaEditar={monedaEditar}
+            />
+          </>
+        )}
+
+        {/* ========== PESTAÑA CUENTAS ========== */}
+        {activeTab === 'cuentas' && (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Cuentas</h2>
+              <button
+                onClick={() => {
+                  setCuentaEditar(null);
+                  setIsCuentaModalOpen(true);
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                + Nueva Cuenta
+              </button>
+            </div>
+
+            <table className="min-w-full mt-2 border">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border">ID</th>
+                  <th className="p-2 border">Nombre</th>
+                  <th className="p-2 border">Tipo</th>
+                  <th className="p-2 border">Teléfono</th>
+                  <th className="p-2 border">Saldo (CUP)</th>
+                  <th className="p-2 border">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cuentas.map((c) => (
+                  <tr key={c.id_cuenta}>
+                    <td className="p-2 border">{c.id_cuenta}</td>
+                    <td className="p-2 border">{c.nombre}</td>
+                    <td className="p-2 border">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        c.tipo === 'cliente' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {c.tipo}
+                      </span>
+                    </td>
+                    <td className="p-2 border">{c.telefono || 'N/A'}</td>
+                    <td className="p-2 border">{Number(c.saldo).toFixed(2)}</td>
+                    <td className="p-2 border space-x-2">
+                      <button
+                        onClick={() => openEditCuentaModal(c)}
+                        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCuenta(c.id_cuenta)}
+                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <CuentaModal
+              isOpen={isCuentaModalOpen}
+              onClose={() => setIsCuentaModalOpen(false)}
+              onSave={(cuenta) => {
+                if (cuentaEditar) {
+                  handleUpdateCuenta(cuentaEditar.id_cuenta!, cuenta);
+                } else {
+                  handleCreateCuenta(cuenta);
+                }
+              }}
+              cuentaEditar={cuentaEditar}
             />
           </>
         )}

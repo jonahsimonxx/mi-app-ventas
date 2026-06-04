@@ -12,6 +12,11 @@ export interface ElectronAPI {
   createMoneda: (moneda: Partial<Moneda>) => Promise<Moneda>;
   updateMoneda: (codigo: string, moneda: Partial<Moneda>) => Promise<Moneda | null>;
   deleteMoneda: (codigo: string) => Promise<boolean>;
+
+  getCuentas: () => Promise<Cuenta[]>;
+  createCuenta: (cuenta: Partial<Cuenta>) => Promise<Cuenta>;
+  updateCuenta: (id: string, cuenta: Partial<Cuenta>) => Promise<Cuenta | null>;
+  deleteCuenta: (id: string) => Promise<boolean>;
 }
 
 
