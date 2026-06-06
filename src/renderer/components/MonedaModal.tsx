@@ -12,7 +12,7 @@ const MonedaModal: React.FC<MonedaModalProps> = ({ isOpen, onClose, onSave, mone
   const [moneda, setMoneda] = useState<Partial<Moneda>>({
     codigo: '',
     nombre: '',
-    tasa_cambio: 1.0, // ✅ Campo agregado
+    tasa_cambio: 1.0, 
   });
 
   useEffect(() => {
@@ -20,13 +20,13 @@ const MonedaModal: React.FC<MonedaModalProps> = ({ isOpen, onClose, onSave, mone
       setMoneda({
         codigo: monedaEditar.codigo || '',
         nombre: monedaEditar.nombre || '',
-        tasa_cambio: monedaEditar.tasa_cambio || 1.0, // ✅ Carga la tasa existente
+        tasa_cambio: monedaEditar.tasa_cambio || 1.0, 
       });
     } else {
       setMoneda({
         codigo: '',
         nombre: '',
-        tasa_cambio: 1.0, // ✅ Valor por defecto
+        tasa_cambio: 1.0, 
       });
     }
   }, [monedaEditar, isOpen]);

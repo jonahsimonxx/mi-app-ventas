@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProductoModal from './components/ProductoModal';
 import MonedaModal from './components/MonedaModal';
-import CuentaModal from './components/CuentaModal';
 import { Producto } from '../shared/entities/Producto';
 import { Moneda } from '../shared/entities/Moneda';
 import { Cuenta } from '../shared/entities/Cuenta';
@@ -347,13 +346,7 @@ const App: React.FC = () => {
                     <td className="p-2 border">{c.id_cuenta}</td>
                     <td className="p-2 border">{c.nombre}</td>
                     <td className="p-2 border">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        c.tipo === 'cliente' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {c.tipo}
-                      </span>
                     </td>
-                    <td className="p-2 border">{c.telefono || 'N/A'}</td>
                     <td className="p-2 border">{Number(c.saldo).toFixed(2)}</td>
                     <td className="p-2 border space-x-2">
                       <button
@@ -373,19 +366,6 @@ const App: React.FC = () => {
                 ))}
               </tbody>
             </table>
-
-            <CuentaModal
-              isOpen={isCuentaModalOpen}
-              onClose={() => setIsCuentaModalOpen(false)}
-              onSave={(cuenta) => {
-                if (cuentaEditar) {
-                  handleUpdateCuenta(cuentaEditar.id_cuenta!, cuenta);
-                } else {
-                  handleCreateCuenta(cuenta);
-                }
-              }}
-              cuentaEditar={cuentaEditar}
-            />
           </>
         )}
       </div>
