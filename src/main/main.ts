@@ -1,5 +1,13 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+
+// Carga las variables de entorno desde .env (token de El Toque, credenciales de BD, etc.).
+try {
+  require('dotenv').config();
+} catch {
+  console.warn('⚠️ dotenv no está instalado; se usarán los valores por defecto. Ejecuta "npm install".');
+}
+
 import { createConnection, Connection, getConnection } from 'typeorm';
 import { Producto } from '../shared/entities/Producto';
 import { Moneda } from '../shared/entities/Moneda';
@@ -7,7 +15,7 @@ import { Cuenta } from '../shared/entities/Cuenta';
 import { Envio } from '../shared/entities/Envio';
 import { ProductoEnvio } from '../shared/entities/ProductoEnvio';
 import { Transaccion } from '../shared/entities/Transaccion';
-import { scrapeTasaCambioUSD } from './services/omfiScraper';
+import { fetchTasasEltoque } from './services/eltoqueApi';
 
 let mainWindow: BrowserWindow | null = null;
 let connection: Connection | null = null;
@@ -16,11 +24,11 @@ async function initDatabase() {
   try {
     connection = await createConnection({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '1234',
-      database: 'mi-app-ventas-data-base',
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5432,
+      username: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || '1234',
+      database: process.env.DB_NAME || 'mi-app-ventas-data-base',
       entities: [Producto, Moneda, Cuenta, Envio, ProductoEnvio, Transaccion],
       synchronize: false,
       logging: true,
@@ -193,10 +201,10 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  await scrapeTasaCambioUSD(); 
-  createWindow();
+  await createWindow();
+  await fetchTasasEltoque();
   setInterval(async () => {
-    await scrapeTasaCambioUSD();
+    await fetchTasasEltoque();
   }, 21600000);
 });
 
