@@ -23,8 +23,10 @@
     "pg": "^8.20.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "recharts": "^3.8.1",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",

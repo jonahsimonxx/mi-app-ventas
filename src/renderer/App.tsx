@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ProductoModal from './components/ProductoModal';
 import MonedaModal from './components/MonedaModal';
+import TasaCambioModal from './components/TasaCambioModal';
 import { Producto } from '../shared/entities/Producto';
 import { Moneda } from '../shared/entities/Moneda';
 import { Cuenta } from '../shared/entities/Cuenta';
@@ -20,6 +21,9 @@ const App: React.FC = () => {
   const [cuentas, setCuentas] = useState<Cuenta[]>([]);
   const [isCuentaModalOpen, setIsCuentaModalOpen] = useState(false);
   const [cuentaEditar, setCuentaEditar] = useState<Partial<Cuenta> | null>(null);
+
+  // ========== ESTADO PARA TASAS DE CAMBIO ==========
+  const [isTasaModalOpen, setIsTasaModalOpen] = useState(false);
 
   // ========== PESTAÑA ACTIVA ==========
   const [activeTab, setActiveTab] = useState<'productos' | 'monedas' | 'cuentas'>('productos');
@@ -122,6 +126,11 @@ const App: React.FC = () => {
     }
   }, [activeTab]);
 
+  // ========== CARGAR MONEDAS AL INICIO (para la tasa actual) ==========
+  useEffect(() => {
+    fetchMonedas();
+  }, []);
+
   // ========== OBTENER TASA DE CAMBIO USD ==========
   const tasaUSD = monedas.find(m => m.codigo === 'USD')?.tasa_cambio || 1;
 
@@ -129,8 +138,29 @@ const App: React.FC = () => {
   return (
     <div className="p-4">
       {/* Encabezado */}
-      <h1 className="text-2xl font-bold text-blue-600">Mi App de Ventas 🚀</h1>
-      <p className="mt-2">Electron + React + TypeScript + Tailwind + PostgreSQL</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-600">Mi App de Ventas 🚀</h1>
+          <p className="mt-2">Electron + React + TypeScript + Tailwind + PostgreSQL</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="px-3 py-2 bg-gray-100 rounded text-sm">
+            Tasa actual: <span className="font-semibold text-green-700">1 USD = {Number(tasaUSD).toFixed(2)} CUP</span>
+          </span>
+          <button
+            onClick={() => setIsTasaModalOpen(true)}
+            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          >
+            Tasas de Cambio
+          </button>
+        </div>
+      </div>
+
+      <TasaCambioModal
+        isOpen={isTasaModalOpen}
+        onClose={() => setIsTasaModalOpen(false)}
+        onChanged={fetchMonedas}
+      />
 
       {/* Pestañas */}
       <div className="mt-6 flex gap-4 border-b">
@@ -244,6 +274,7 @@ const App: React.FC = () => {
                 }
               }}
               productoEditar={productoEditar}
+              tasaUSD={tasaUSD}
             />
           </>
         )}

@@ -15,4 +15,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createCuenta: (cuenta: any) => ipcRenderer.invoke('create-cuenta', cuenta),
   updateCuenta: (id: string, cuenta: any) => ipcRenderer.invoke('update-cuenta', id, cuenta),
   deleteCuenta: (id: string) => ipcRenderer.invoke('delete-cuenta', id),
+
+  getTasaActual: (codigo: string) => ipcRenderer.invoke('get-tasa-actual', codigo),
+  getTasaPorFecha: (fecha: string, codigo: string) => ipcRenderer.invoke('get-tasa-por-fecha', fecha, codigo),
+  getTasasHistoricas: () => ipcRenderer.invoke('get-tasas-historicas'),
+  agregarTasaManual: (tasa: any) => ipcRenderer.invoke('agregar-tasa-manual', tasa),
+  importarTasasExcel: () => ipcRenderer.invoke('importar-tasas-excel'),
 });

@@ -8,11 +8,25 @@ Una aplicación de **Electron + React + TypeScript + PostgreSQL** para gestionar
 
 - **Tecnologías**:
 
-  - Frontend: React + TypeScript + Vite + Tailwind CSS.
+  - Frontend: React + TypeScript + Vite + Tailwind CSS + Recharts (gráficos).
 
   - Backend: Electron + Node.js.
 
-  - Base de datos: PostgreSQL.
+  - Base de datos: PostgreSQL (acceso vía TypeORM).
+
+## 💱 Gestión de Tasas de Cambio
+
+Las tasas de cambio se gestionan **manualmente** (no se usa ninguna API externa).
+
+- **Servicio**: `src/main/services/tasaCambioService.ts` expone:
+  - `getTasaActual(codigo_moneda)`: tasa actual desde la tabla `Moneda`.
+  - `getTasaPorFecha(fecha, codigo_moneda)`: tasa en una fecha desde `tasa_cambio_historico`.
+  - `getTasasHistoricas()`: todo el histórico.
+  - `agregarTasaManual(tasa)`: alta/edición manual de una tasa (también sincroniza USD en `Moneda`).
+  - `importarTasasDesdeExcel(filePath)`: importa tasas desde un Excel (`xlsx`).
+- **UI**: `src/renderer/components/TasaCambioModal.tsx` (formulario manual, importar Excel,
+  tabla de histórico y gráfico de variación USD → CUP con Recharts). Se abre desde el botón
+  "Tasas de Cambio" en el encabezado de `App.tsx`, que también muestra la tasa USD → CUP actual.
 
 ## 🗃 Estructura de la Base de Datos
 

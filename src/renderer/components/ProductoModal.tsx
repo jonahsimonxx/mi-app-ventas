@@ -6,9 +6,10 @@ interface ProductoModalProps {
   onClose: () => void;
   onSave: (producto: any) => void;
   productoEditar: Partial<Producto> | null;
+  tasaUSD?: number;
 }
 
-const ProductoModal: React.FC<ProductoModalProps> = ({ isOpen, onClose, onSave, productoEditar }) => {
+const ProductoModal: React.FC<ProductoModalProps> = ({ isOpen, onClose, onSave, productoEditar, tasaUSD = 1 }) => {
   const [producto, setProducto] = useState<Partial<Producto>>({
     id_prod: '',
     nombre_prod: '',
@@ -100,6 +101,12 @@ const ProductoModal: React.FC<ProductoModalProps> = ({ isOpen, onClose, onSave, 
                 required
               />
             </div>
+          </div>
+          <div className="mb-4 text-sm text-gray-700">
+            Precio en CUP (tasa actual 1 USD = {Number(tasaUSD).toFixed(2)} CUP):{' '}
+            <span className="font-semibold text-green-700">
+              {(Number(producto.precio_venta || 0) * Number(tasaUSD)).toFixed(2)} CUP
+            </span>
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Stock:</label>

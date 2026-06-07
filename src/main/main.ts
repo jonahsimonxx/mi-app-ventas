@@ -1,7 +1,7 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 
-// Carga las variables de entorno desde .env (token de El Toque, credenciales de BD, etc.).
+// Carga las variables de entorno desde .env (credenciales de BD, etc.).
 try {
   require('dotenv').config();
 } catch {
@@ -15,7 +15,15 @@ import { Cuenta } from '../shared/entities/Cuenta';
 import { Envio } from '../shared/entities/Envio';
 import { ProductoEnvio } from '../shared/entities/ProductoEnvio';
 import { Transaccion } from '../shared/entities/Transaccion';
-import { fetchTasasEltoque } from './services/eltoqueApi';
+import { TasaCambioHistorico } from '../shared/entities/TasaCambioHistorico';
+import {
+  getTasaActual,
+  getTasaPorFecha,
+  getTasasHistoricas,
+  agregarTasaManual,
+  importarTasasDesdeExcel,
+  TasaCambioManual,
+} from './services/tasaCambioService';
 
 let mainWindow: BrowserWindow | null = null;
 let connection: Connection | null = null;
@@ -29,7 +37,7 @@ async function initDatabase() {
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || '1234',
       database: process.env.DB_NAME || 'mi-app-ventas-data-base',
-      entities: [Producto, Moneda, Cuenta, Envio, ProductoEnvio, Transaccion],
+      entities: [Producto, Moneda, Cuenta, Envio, ProductoEnvio, Transaccion, TasaCambioHistorico],
       synchronize: false,
       logging: true,
     });
@@ -175,6 +183,62 @@ ipcMain.handle('delete-cuenta', async (_, id: string) => {
   }
 });
 
+// ========== HANDLERS DE TASAS DE CAMBIO ==========
+ipcMain.handle('get-tasa-actual', async (_, codigo_moneda: string) => {
+  try {
+    return await getTasaActual(codigo_moneda);
+  } catch (error) {
+    console.error('❌ Error al obtener tasa actual:', error);
+    return 0;
+  }
+});
+
+ipcMain.handle('get-tasa-por-fecha', async (_, fecha: string, codigo_moneda: string) => {
+  try {
+    return await getTasaPorFecha(fecha, codigo_moneda);
+  } catch (error) {
+    console.error('❌ Error al obtener tasa por fecha:', error);
+    return 0;
+  }
+});
+
+ipcMain.handle('get-tasas-historicas', async () => {
+  try {
+    return await getTasasHistoricas();
+  } catch (error) {
+    console.error('❌ Error al obtener histórico de tasas:', error);
+    return [];
+  }
+});
+
+ipcMain.handle('agregar-tasa-manual', async (_, tasa: TasaCambioManual) => {
+  try {
+    await agregarTasaManual(tasa);
+    return true;
+  } catch (error) {
+    console.error('❌ Error al agregar tasa manual:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('importar-tasas-excel', async () => {
+  try {
+    const resultado = await dialog.showOpenDialog({
+      title: 'Selecciona el archivo Excel de tasas',
+      properties: ['openFile'],
+      filters: [{ name: 'Excel', extensions: ['xlsx', 'xls'] }],
+    });
+    if (resultado.canceled || resultado.filePaths.length === 0) {
+      return { importado: false };
+    }
+    await importarTasasDesdeExcel(resultado.filePaths[0]);
+    return { importado: true };
+  } catch (error) {
+    console.error('❌ Error al importar tasas desde Excel:', error);
+    throw error;
+  }
+});
+
 async function createWindow() {
   await initDatabase();
 
@@ -202,10 +266,6 @@ async function createWindow() {
 
 app.whenReady().then(async () => {
   await createWindow();
-  await fetchTasasEltoque();
-  setInterval(async () => {
-    await fetchTasasEltoque();
-  }, 21600000);
 });
 
 app.on('window-all-closed', () => {
