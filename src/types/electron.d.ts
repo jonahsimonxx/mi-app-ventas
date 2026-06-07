@@ -1,6 +1,15 @@
-import axios from 'axios';
-import { Producto } from '../shared/entities/Producto'; 
+import { Producto } from '../shared/entities/Producto';
 import { Moneda } from '../shared/entities/Moneda';
+import { Cuenta } from '../shared/entities/Cuenta';
+import { TasaCambioHistorico } from '../shared/entities/TasaCambioHistorico';
+
+export interface TasaCambioManual {
+  fecha: string;
+  usd_to_cup: number;
+  eur_to_cup?: number;
+  gbp_to_cup?: number;
+  fuente?: string;
+}
 
 export interface ElectronAPI {
   getProductos: () => Promise<Producto[]>;
@@ -17,6 +26,12 @@ export interface ElectronAPI {
   createCuenta: (cuenta: Partial<Cuenta>) => Promise<Cuenta>;
   updateCuenta: (id: string, cuenta: Partial<Cuenta>) => Promise<Cuenta | null>;
   deleteCuenta: (id: string) => Promise<boolean>;
+
+  getTasaActual: (codigo: string) => Promise<number>;
+  getTasaPorFecha: (fecha: string, codigo: string) => Promise<number>;
+  getTasasHistoricas: () => Promise<TasaCambioHistorico[]>;
+  agregarTasaManual: (tasa: TasaCambioManual) => Promise<boolean>;
+  importarTasasExcel: () => Promise<{ importado: boolean }>;
 }
 
 
