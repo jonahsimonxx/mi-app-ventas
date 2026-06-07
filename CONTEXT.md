@@ -97,10 +97,25 @@ erDiagram
 
     TASA_CAMBIO_HISTORICO {
         int id PK
-        date fecha
+        date fecha UK
         decimal usd_to_cup
         decimal eur_to_cup
+        decimal gbp_to_cup
         string fuente
         timestamp created_at
     }
+```
+
+### DDL: tasa_cambio_historico
+
+```sql
+CREATE TABLE tasa_cambio_historico (
+    id SERIAL PRIMARY KEY,
+    fecha DATE NOT NULL UNIQUE,  -- Evitar duplicados por fecha
+    usd_to_cup DECIMAL(10, 4) NOT NULL,
+    eur_to_cup DECIMAL(10, 4),
+    gbp_to_cup DECIMAL(10, 4),
+    fuente VARCHAR(20) DEFAULT 'manual',  -- 'manual' o 'excel'
+    created_at TIMESTAMP DEFAULT NOW()
+);
 ```
